@@ -131,7 +131,7 @@ $(document).ready(function () {
 
 <div id="the-problem" class="section level1">
 <h1>The Problem</h1>
-<p>We often use topic models to get</p>
+<p>We often use topic models to get an overview of our corpus</p>
 <div id="the-corpus" class="section level2">
 <h2>The Corpus</h2>
 <p>We use a corpus from the sun, a British Boulevard newspaper, that contains a total of xxx articles published between December 2017 and July 2018. We restrict our sample to articles published in the news section, leaving us with 22806 articles after throwing out articles without text. Below, we present the number of news articles per day to give you an overview, though for now we don’t address time variation.</p>
@@ -167,7 +167,31 @@ ggplot(data=news_agg,mapping=aes(x=date,y=articles))+geom_point()+geom_smooth(se
 <div id="finding-topics-bottom-up" class="section level1">
 <h1>Finding Topics bottom-up</h1>
 <p>Before running unsupervised methods to get an overview of our corpus, we wanted to get an overview ourselves. Similar to generating a hand-coded training sample, we coded a randomly selected subset of documents. However, our selection we selected only 100 documents.</p>
-<p>Each of us had the same task: - read the first 20 documents, identify what you think of as a topic - (as group) discuss if 15 may be an appropriate number - read remaining 80 documents - decide on topics - attribute documents to topics - determine 5 keywords per topic - this could be done in an automated word by checking for words that have high tf-idf scores in our documents - but in such a small sample, human choice seemed more effective - (as group) discuss what we thought of as a topic</p>
+<p>Below, we present our manual method of topic generation and its results. We call this <strong>TOPIC</strong>: Topical jOurnalism Politics Ir Classification.</p>
+<div id="procedure" class="section level2">
+<h2>Procedure</h2>
+<p>Each of us had the same task:</p>
+<ul>
+<li>read the first 20 documents, identify what you think of as a topic</li>
+<li>(as group) discuss if 15 may be an appropriate number</li>
+<li>read remaining 80 documents</li>
+<li>decide on topics</li>
+<li>attribute documents to topics</li>
+<li>determine 5 keywords per topic
+<ul>
+<li>this could be done in an automated word by checking for words that have high tf-idf scores in our documents</li>
+<li>but in such a small sample, human choice seemed more effective</li>
+</ul></li>
+<li>(as group) discuss what we thought of as a topic</li>
+<li>(as group) decide on a common set of topics and keywords for further iterations
+<ul>
+<li>originally, we were planning to do our analysis for each teammember’s topic model - but we ran out of computing power for that</li>
+</ul></li>
+</ul>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<p>These are the topics each participant established:</p>
 <pre class="r"><code>topics_across_people &lt;- read_excel(&quot;C:/Users/theresa/Dropbox (Privat)/miniproject/topics_across_people.xlsx&quot;)
 topics_across_people %&gt;% kable(caption=&quot;Participant's Topics&quot;) %&gt;%
   kable_styling() %&gt;% row_spec(row = 0, bold=T)</code></pre>
@@ -452,12 +476,7 @@ environment
 </tr>
 </tbody>
 </table>
-<ul>
-<li>(as group) decide on a common set of topics and keywords for further iterations
-<ul>
-<li>originally, we were planning to do our analysis for each teammember’s topic model - but we ran out of computing power for that</li>
-</ul></li>
-</ul>
+<p>These are the specific topics and keywords that were the result of our joint discussion:</p>
 <pre class="r"><code>topics&lt;-c(&quot;Brexit&quot;, &quot;England&quot;, &quot;Health&quot;, &quot;International&quot;, &quot;Lifestyle&quot;, &quot;Money&quot;, &quot;Accident&quot;, &quot;Royalty&quot;, &quot;Science&quot;, &quot;Sex&quot;, &quot;Syria&quot;, &quot;Technology&quot;, &quot;Terrorism&quot;, &quot;Family&quot;, &quot;Crime&quot;)
 keywords&lt;-readtext(&quot;C:/Users/theresa/Desktop/miniproject/final_keywords.txt&quot;)
 text = unlist(strsplit(keywords[1,2],&quot;\n&quot;))
@@ -604,11 +623,16 @@ gang drug assault crime murder
 </tbody>
 </table>
 </div>
+</div>
 <div id="getting-into-information-retrieval" class="section level1">
 <h1>Getting into information retrieval</h1>
-<p>Now that we have decided on our topics of interest - how do we find them without coding thousands of articles?</p>
+<p>Now that we have decided on our topics of interest - how do we find them without coding thousands of articles? We outline TOPIC_ex, a method to extract topic shares with our keywords based on theories of information retrieval.</p>
 <div id="the-vector-space-model" class="section level2">
 <h2>The Vector Space model</h2>
+<p>For this, we rely on the <strong>vector space model</strong> of text</p>
+<p>Documents and queries are represented as vectors.</p>
+<p><span class="math inline">\(d_j = ( w_{1,j} ,w_{2,j} , \dotsc ,w_{t,j} )\)</span> <span class="math inline">\(q = ( w_{1,q} ,w_{2,q} , \dotsc ,w_{n,q} )\)</span></p>
+<p>Each [[Dimension (vector space)|dimension]] corresponds to a separate term. If a term occurs in the document, its value in the vector is non-zero. Several different ways of computing these values, also known as (term) weights, have been developed. One of the best known schemes is [[tf-idf]] weighting (see the example below).</p>
 <div id="advantages-of-vector-space-models" class="section level3">
 <h3>Advantages of vector space models</h3>
 <ul>
@@ -692,39 +716,23 @@ save(results_df,file=&quot;results_df.RData&quot;)</code></pre>
         Syria    Technology     Terrorism        Family         Crime 
   0.005230948   0.010641690   0.010108906   0.016148911   0.015130309 </code></pre>
 <pre class="r"><code>vector&lt;-sapply(results_df[1:length(topics)],which.max)
-results_df$V16[vector]</code></pre>
-<pre><code>                                                                                                                                                                  12582 
-                                                         OPEN DOOR  Brexit migration row as PM suggests EU citizens could get more access to Britain even after we quit 
-                                                                                                                                                                   7738 
-                 PMQS SCORE  Off came the Lenin cap and on went the gloves as Jeremy Corbyn tried to beat up Theresa May on council funding – but failed to land a blow 
-                                                                                                                                                                  10235 
-                                            GAMER HEALTH FEARS  Video game addiction set to be classified as a mental health condition by the World Health Organisation 
-                                                                                                                                                                  20314 
-                                        'POWERFUL FORCES ARE AT WORK'  Vladimir Putin claims there’s a secret conspiracy to destroy relations between Russia and the US 
-                                                                                                                                                                  18877 
-                                                        DAY AT THE RACES  Party spirit at Epsom Derby 2018 as celebs and thousands of racegoers glam up for the big day 
-                                                                                                                                                                   4296 
-                                                KIM JONG JEZ  Jeremy Corbyn ‘wants to turn London into a Communist city like Pyongyang’ by shrinking the finance sector 
-                                                                                                                                                                  14044 
-                            NEVER DO MAKE UP IN THE CAR  Taxi passenger ends up with eyeliner pencil stuck in her EYE after car crashes while she was doing her make-up 
-                                                                                                                                                                   7119 
-                                                                                ROYAL TALL ORDER  The 5ft 3in Queen appoints a 7ft 2in giant to be one of her key aides 
-                                                                                                                                                                    703 
-BATTY FOR CHANGE  Theresa May reveals she has put boxes for birds, owls and bats in her garden to do her bit as she reveals radical Government plan for the environment 
-                                                                                                                                                                   7946 
-                                                                              ASYLUM RAPIST CAGED  British Army interpreter jailed for drugging and raping a girl of 14 
-                                                                                                                                                                   9037 
-                                                                        THERESA MAY  Syrian children are gasping for life as Assad’s gas chokes them — it must stop now 
-                                                                                                                                                                  16113 
-                                                                      'BEYOND SHOCKING'  Rape victims identified by Google as searches for attackers reveal victims too 
-                                                                                                                                                                   3214 
-                                                                                            FRESH TERROR  New terror cult called ‘the youth’ could replace ISIS in 2018 
-                                                                                                                                                                  15138 
-                                                         SELF-DOUBT  What is gaslighting, where does the term come from and is it a form of abuse within relationships? 
-                                                                                                                                                                   4299 
-   PRISON CRACKDOWN  Kingpins running drugs gangs from their cell will be moved to top security jails alongside terrorists and murderers under new Government crackdown 
-22803 Levels: '#JUSTICEFORJAMES'  James Bulger’s mum Denise Fergus backs petition calling for public inquiry into Jon Venables’ release and re-offending ...</code></pre>
-<p>For those of you who want more detail, we offer a selection of some curious traffic news from the UK, selected by our very own search engine / topic model!</p>
+paste(topics,results_df$V16[vector])</code></pre>
+<pre><code> [1] &quot;Brexit OPEN DOOR  Brexit migration row as PM suggests EU citizens could get more access to Britain even after we quit&quot;                                                          
+ [2] &quot;England PMQS SCORE  Off came the Lenin cap and on went the gloves as Jeremy Corbyn tried to beat up Theresa May on council funding – but failed to land a blow&quot;                 
+ [3] &quot;Health GAMER HEALTH FEARS  Video game addiction set to be classified as a mental health condition by the World Health Organisation&quot;                                             
+ [4] &quot;International 'POWERFUL FORCES ARE AT WORK'  Vladimir Putin claims there’s a secret conspiracy to destroy relations between Russia and the US&quot;                                  
+ [5] &quot;Lifestyle DAY AT THE RACES  Party spirit at Epsom Derby 2018 as celebs and thousands of racegoers glam up for the big day&quot;                                                      
+ [6] &quot;Money KIM JONG JEZ  Jeremy Corbyn ‘wants to turn London into a Communist city like Pyongyang’ by shrinking the finance sector&quot;                                                  
+ [7] &quot;Accident NEVER DO MAKE UP IN THE CAR  Taxi passenger ends up with eyeliner pencil stuck in her EYE after car crashes while she was doing her make-up&quot;                           
+ [8] &quot;Royalty ROYAL TALL ORDER  The 5ft 3in Queen appoints a 7ft 2in giant to be one of her key aides&quot;                                                                                
+ [9] &quot;Science BATTY FOR CHANGE  Theresa May reveals she has put boxes for birds, owls and bats in her garden to do her bit as she reveals radical Government plan for the environment&quot;
+[10] &quot;Sex ASYLUM RAPIST CAGED  British Army interpreter jailed for drugging and raping a girl of 14&quot;                                                                                  
+[11] &quot;Syria THERESA MAY  Syrian children are gasping for life as Assad’s gas chokes them — it must stop now&quot;                                                                          
+[12] &quot;Technology 'BEYOND SHOCKING'  Rape victims identified by Google as searches for attackers reveal victims too&quot;                                                                   
+[13] &quot;Terrorism FRESH TERROR  New terror cult called ‘the youth’ could replace ISIS in 2018&quot;                                                                                          
+[14] &quot;Family SELF-DOUBT  What is gaslighting, where does the term come from and is it a form of abuse within relationships?&quot;                                                          
+[15] &quot;Crime PRISON CRACKDOWN  Kingpins running drugs gangs from their cell will be moved to top security jails alongside terrorists and murderers under new Government crackdown&quot;     </code></pre>
+<p>For those of you who want more detail, we offer a selection of some curious <strong>traffic news</strong> from the UK, selected by our very own search engine / topic model!</p>
 <pre class="r"><code>sorted_results &lt;- results_df[order(results_df$Accident, decreasing = TRUE), ]
 head(sorted_results$V17)</code></pre>
 <pre><code>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             14044 
